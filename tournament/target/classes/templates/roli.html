@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+</head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #00e5ff;
+            color: black;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .info {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info p {
+            margin: 8px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Реєстрація користувача</h1>
+<div class="container">
+    <label for="username">Ім'я користувача:</label>
+    <input type="text" id="username" placeholder="Введіть ім'я">
+
+    <label for="role">Виберіть роль:</label>
+    <select id="role">
+        <option value="Адміністратор">Адміністратор</option>
+        <option value="Учасник">Учасник</option>
+        <option value="Журі">Журі</option>
+        <option value="Організатор">Організатор</option>
+    </select>
+
+    <button onclick="registerUser()">Зареєструватися</button>
+</div>
+
+<div id="userInfo" class="container hidden">
+    <h2>Ваш профіль</h2>
+    <p><strong>Ім'я:</strong> <span id="displayName"></span></p>
+    <p><strong>Роль:</strong> <span id="displayRole"></span></p>
+
+    <div id="permissions" class="info">
+        <h3>Доступні дії:</h3>
+        <ul id="actionsList"></ul>
+    </div>
+</div>
+
+<script>
+    function registerUser() {
+        const name = document.getElementById('username').value.trim();
+        const role = document.getElementById('role').value;
+
+        if (!name) {
+            alert('Будь ласка, введіть ім\'я.');
+            return;
+        }
+
+        document.getElementById('displayName').innerText = name;
+        document.getElementById('displayRole').innerText = role;
+        document.getElementById('userInfo').classList.remove('hidden');
+
+        // Очистимо попередні дії
+        const actionsList = document.getElementById('actionsList');
+        actionsList.innerHTML = '';
+
+        // Визначимо права на основі ролі
+        let actions = [];
+        switch(role) {
+            case 'Адміністратор':
+                actions = [
+                    'Створювати та видаляти команди',
+                    'Роздавати ролі користувачам',
+                    'Редагувати права учасників'
+                ];
+                break;
+            case 'Учасник':
+                actions = [
+                    'Створити команду',
+                    'Брати участь у проектах'
+                ];
+                break;
+            case 'Журі':
+                actions = [
+                    'Оцінювати роботи команд',
+                    'Доступ до результатів'
+                ];
+                break;
+            case 'Організатор':
+                actions = [
+                    'Перегляд усіх команд та учасників',
+                    'Моніторинг подій'
+                ];
+                break;
+        }
+
+        actions.forEach(action => {
+            const li = document.createElement('li');
+            li.innerText = action;
+            actionsList.appendChild(li);
+        });
+    }
+</script>
+
+</body>
+</html>
