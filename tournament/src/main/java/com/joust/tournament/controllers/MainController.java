@@ -15,7 +15,14 @@ public class MainController {
     }
     @GetMapping("/roli")
     public String roli(Model model){
-        model.addAttribute("titel","Ролі");
+        model.addAttribute("title","Ролі");
         return "roli";
     }
+
+    @GetMapping("/team")
+    public String Team(Model model){
+        model.addAttribute("title","Команда");
+        return "Team";
+    }
 }
+
