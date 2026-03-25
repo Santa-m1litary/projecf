@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.1
+    container_name: tournament-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tournamentdb
+      MYSQL_USER: tournamentuser
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+

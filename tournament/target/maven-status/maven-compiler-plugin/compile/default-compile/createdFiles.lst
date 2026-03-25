@@ -1,0 +1,6 @@
+com/joust/tournament/TournamentApplication.class
+com/joust/tournament/controllers/PostRepository.class
+com/joust/tournament/controllers/PostController.class
+com/joust/tournament/controllers/Post.class
+com/joust/tournament/controllers/TeamController.class
+com/joust/tournament/controllers/MainController.class
