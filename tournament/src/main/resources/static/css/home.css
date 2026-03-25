@@ -1,0 +1,236 @@
+/* ===========================
+   home.css — стилі головної сторінки
+   ArenaFlow
+   =========================== */
+
+/* --- RESET & BASE --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- NAVBAR --- */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+nav h1 {
+    font-size: 26px;
+}
+
+nav ul {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: #00e5ff;
+}
+
+/* --- HERO --- */
+.hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 160px 20px 80px;
+    animation: fadeIn 1.5s ease;
+    position: relative;
+}
+
+.hero h2 {
+    font-size: 42px;
+    line-height: 1.25;
+    margin-bottom: 20px;
+    max-width: 700px;
+    white-space: nowrap;
+}
+
+.hero p {
+    max-width: 560px;
+    opacity: 0.75;
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+/* --- BUTTONS --- */
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.button {
+    padding: 15px 35px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.button-primary {
+    background: #00e5ff;
+    color: black;
+}
+
+.button-primary:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+}
+
+.button-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.button-secondary:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    transform: scale(1.07);
+}
+
+/* --- SCROLL HINT --- */
+.scroll-hint {
+    position: absolute;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.5;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: fadeIn 2s ease 1s both;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.scroll-hint:hover {
+    opacity: 0.9;
+}
+
+.scroll-arrow {
+    width: 22px;
+    height: 22px;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(45deg);
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translateY(0); }
+    50%       { transform: rotate(45deg) translateY(6px); }
+}
+
+/* --- FEATURES SECTION --- */
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 40px 80px 80px;
+}
+
+.features-title {
+    width: 100%;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 1s;
+}
+
+.features-title.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- CARDS --- */
+.card {
+    width: 260px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    transition: 0.4s;
+    transform: translateY(40px);
+    opacity: 0;
+    cursor: default;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.card h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.card p {
+    opacity: 0.7;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.card a.card-link {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #00e5ff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.card a.card-link:hover {
+    letter-spacing: 0.5px;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.show {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    transition: 1s;
+}
