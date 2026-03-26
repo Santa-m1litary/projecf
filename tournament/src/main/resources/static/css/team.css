@@ -348,3 +348,53 @@ nav a:hover { color: #00e5ff; }
     background: rgba(255,60,60,0.06);
     box-shadow: 0 0 0 3px rgba(255,60,60,0.12);
 }
+
+/* ══════════════════════════════
+   FADE-IN ANIMATIONS (як hero на головній)
+══════════════════════════════ */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-header {
+    animation: fadeIn 1s ease both;
+}
+.create-section {
+    animation: fadeIn 1s ease .2s both;
+}
+#teamsContainer {
+    animation: fadeIn 1s ease .35s both;
+}
+
+/* ── ТОЧКОВИЙ ФОН ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+}
+
+/* ── NAVBAR ── */
+nav {
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    box-shadow: 0 4px 30px rgba(0,0,0,.2);
+}
+nav a:hover { color: #00e5ff; }
+nav a.active {
+    color: #00e5ff;
+    position: relative;
+}
+nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 2px;
+    background: #00e5ff;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(0,229,255,.6);
+}
