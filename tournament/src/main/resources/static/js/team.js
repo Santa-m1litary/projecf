@@ -82,13 +82,26 @@ function copyCode(code) {
 }
 
 async function loadTeams() {
+    const container = document.getElementById('teamsContainer');
+
+    // Loading стан
+    container.innerHTML = `
+        <div class="teams-loading">
+            <div class="spinner"></div>
+            <p>Завантаження команд…</p>
+        </div>`;
+
     const res   = await fetch('/api/teams');
     const teams = await res.json();
-    const container = document.getElementById('teamsContainer');
     container.innerHTML = '';
 
     if (teams.length === 0) {
-        container.innerHTML = '<div class="no-teams">Поки немає команд. Створіть першу! 👆</div>';
+        container.innerHTML = `
+            <div class="no-teams">
+                <div class="no-teams-icon">👥</div>
+                <div class="no-teams-title">Команд ще немає</div>
+                <div class="no-teams-hint">Введіть назву вище і натисніть «+ Створити»</div>
+            </div>`;
         return;
     }
 
