@@ -10,7 +10,7 @@ public class MainController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("title", "Головна сторінка");
-        return "Home";
+        return "home";
     }
 
     @GetMapping("/roli")
@@ -29,5 +29,10 @@ public class MainController {
     public String tournaments(Model model) {
         model.addAttribute("title", "Турніри");
         return "tournaments";
+    }
+    @GetMapping("/download")
+    public String download(Model model) {
+        model.addAttribute("title", "Завантаження");
+        return "download";
     }
 }
