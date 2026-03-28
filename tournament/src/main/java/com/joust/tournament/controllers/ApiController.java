@@ -20,28 +20,50 @@ public class ApiController {
 
     // ======= USERS =======
 
-    // POST /api/users/register  { name, role }
-    @PostMapping("/users/register")
+    // POST /api/user/register  { name, role, email, password }
+    @PostMapping("/user/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String name = body.get("name");
-        String role = body.get("role");
-        if (name == null || name.isBlank()) return ResponseEntity.badRequest().body("Введіть імʼя");
-        if (role == null || role.isBlank()) return ResponseEntity.badRequest().body("Оберіть роль");
-        User user = dataService.registerUser(name.trim(), role);
-        return ResponseEntity.ok(user);
+        String name     = body.get("name");
+        String role     = body.get("role");
+        String email    = body.get("email");
+        String password = body.get("password");
+
+        if (name == null || name.isBlank())     return ResponseEntity.badRequest().body("Введіть імʼя");
+        if (role == null || role.isBlank())     return ResponseEntity.badRequest().body("Оберіть роль");
+        if (email == null || email.isBlank())   return ResponseEntity.badRequest().body("Введіть email");
+        if (password == null || password.length() < 6) return ResponseEntity.badRequest().body("Пароль мінімум 6 символів");
+
+        User user = dataService.registerUser(name, role, email, password);
+        if (user == null) return ResponseEntity.badRequest().body("Email вже зареєстровано");
+        return ResponseEntity.ok(safeUser(user));
+    }
+
+    // POST /api/user/login  { email, password }
+    @PostMapping("/user/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        String email    = body.get("email");
+        String password = body.get("password");
+
+        if (email == null || email.isBlank())    return ResponseEntity.badRequest().body("Введіть email");
+        if (password == null || password.isBlank()) return ResponseEntity.badRequest().body("Введіть пароль");
+
+        User user = dataService.loginUser(email.trim().toLowerCase(), password);
+        if (user == null) return ResponseEntity.status(401).body("Невірний email або пароль");
+        return ResponseEntity.ok(safeUser(user));
     }
 
     // GET /api/users
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return dataService.getAllUsers();
+    public ResponseEntity<?> getUsers() {
+        return ResponseEntity.ok(
+            dataService.getAllUsers().stream().map(this::safeUser).toList()
+        );
     }
 
     // PUT /api/users/{id}/role  { role }
     @PutMapping("/users/{id}/role")
     public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String role = body.get("role");
-        if (!dataService.updateUserRole(id, role))
+        if (!dataService.updateUserRole(id, body.get("role")))
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
@@ -53,9 +75,19 @@ public class ApiController {
         return ResponseEntity.ok().build();
     }
 
+    // Safe user (without password)
+    private Map<String, String> safeUser(User u) {
+        return Map.of(
+            "id",    u.getId(),
+            "name",  u.getName(),
+            "role",  u.getRole(),
+            "code",  u.getCode(),
+            "email", u.getEmail() != null ? u.getEmail() : ""
+        );
+    }
+
     // ======= TEAMS =======
 
-    // POST /api/teams  { name }
     @PostMapping("/teams")
     public ResponseEntity<?> createTeam(@RequestBody Map<String, String> body) {
         String name = body.get("name");
@@ -63,38 +95,31 @@ public class ApiController {
         return ResponseEntity.ok(dataService.createTeam(name.trim()));
     }
 
-    // GET /api/teams
     @GetMapping("/teams")
     public List<Team> getTeams() {
         return dataService.getAllTeams();
     }
 
-    // POST /api/teams/{id}/members/code  { code }  — додати за кодом профілю
     @PostMapping("/teams/{id}/members/code")
     public ResponseEntity<?> addMemberByCode(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String code = body.get("code");
-        if (!dataService.addMemberByCode(id, code))
+        if (!dataService.addMemberByCode(id, body.get("code")))
             return ResponseEntity.badRequest().body("Код не знайдено або учасник вже є");
         return ResponseEntity.ok().build();
     }
 
-    // POST /api/teams/{id}/members  { name }  — додати вручну
     @PostMapping("/teams/{id}/members")
     public ResponseEntity<?> addMember(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String name = body.get("name");
-        if (!dataService.addMemberByName(id, name))
+        if (!dataService.addMemberByName(id, body.get("name")))
             return ResponseEntity.badRequest().body("Помилка додавання");
         return ResponseEntity.ok().build();
     }
 
-    // DELETE /api/teams/{id}/members/{index}
     @DeleteMapping("/teams/{id}/members/{index}")
     public ResponseEntity<?> removeMember(@PathVariable String id, @PathVariable int index) {
         if (!dataService.removeMember(id, index)) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
 
-    // DELETE /api/teams/{id}
     @DeleteMapping("/teams/{id}")
     public ResponseEntity<?> deleteTeam(@PathVariable String id) {
         if (!dataService.deleteTeam(id)) return ResponseEntity.notFound().build();
@@ -103,45 +128,37 @@ public class ApiController {
 
     // ======= TOURNAMENTS =======
 
-    // POST /api/tournaments  { name, createdBy }
     @PostMapping("/tournaments")
     public ResponseEntity<?> createTournament(@RequestBody Map<String, String> body) {
-        String name      = body.get("name");
-        String createdBy = body.get("createdBy");
+        String name = body.get("name");
         if (name == null || name.isBlank()) return ResponseEntity.badRequest().body("Введіть назву");
-        return ResponseEntity.ok(dataService.createTournament(name.trim(), createdBy));
+        return ResponseEntity.ok(dataService.createTournament(name.trim(), body.get("createdBy")));
     }
 
-    // GET /api/tournaments
     @GetMapping("/tournaments")
     public List<Tournament> getTournaments() {
         return dataService.getAllTournaments();
     }
 
-    // POST /api/tournaments/{id}/teams  { teamCode }
     @PostMapping("/tournaments/{id}/teams")
-    public ResponseEntity<?> addTeam(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String teamCode = body.get("teamCode");
-        if (!dataService.addTeamToTournament(id, teamCode))
+    public ResponseEntity<?> addTeamToTournament(@PathVariable String id, @RequestBody Map<String, String> body) {
+        if (!dataService.addTeamToTournament(id, body.get("teamCode")))
             return ResponseEntity.badRequest().body("Команду не знайдено або вже додана");
         return ResponseEntity.ok().build();
     }
 
-    // DELETE /api/tournaments/{tid}/teams/{teamId}
     @DeleteMapping("/tournaments/{tid}/teams/{teamId}")
-    public ResponseEntity<?> removeTeam(@PathVariable String tid, @PathVariable String teamId) {
+    public ResponseEntity<?> removeTeamFromTournament(@PathVariable String tid, @PathVariable String teamId) {
         if (!dataService.removeTeamFromTournament(tid, teamId)) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
 
-    // PUT /api/tournaments/{id}/status
     @PutMapping("/tournaments/{id}/status")
     public ResponseEntity<?> toggleStatus(@PathVariable String id) {
         if (!dataService.toggleTournamentStatus(id)) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
 
-    // DELETE /api/tournaments/{id}
     @DeleteMapping("/tournaments/{id}")
     public ResponseEntity<?> deleteTournament(@PathVariable String id) {
         if (!dataService.deleteTournament(id)) return ResponseEntity.notFound().build();

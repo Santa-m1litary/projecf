@@ -1,53 +1,116 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${title}">Ролі — ArenaFlow</title>
+    <title>Акаунт — ArenaFlow</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/roli.css}" href="roli.css">
 </head>
 <body>
+<div class="blob-1"></div>
+<div class="blob-2"></div>
 
     <header th:insert="Blocks/header :: header"></header>
 
     <div class="wrap">
-        <h1 class="page-title">👤 Реєстрація</h1>
-        <p class="page-sub">Оберіть роль і отримайте особистий код</p>
 
-        <!-- ══ РЕЄСТРАЦІЙНА ФОРМА ══ -->
-        <div class="glass" id="regForm">
+        <div class="page-tag">Акаунт</div>
+        <h1 class="page-title">ArenaFlow</h1>
+        <p class="page-sub">Увійдіть або створіть акаунт щоб почати</p>
+
+
+        <!-- ══ TABS ══ -->
+        <div class="auth-tabs" id="authTabs">
+            <button class="auth-tab active" id="tabLogin"    onclick="switchTab('login')">Вхід</button>
+            <button class="auth-tab"        id="tabRegister" onclick="switchTab('register')">Реєстрація</button>
+        </div>
+
+        <!-- ══ LOGIN FORM ══ -->
+        <div class="glass auth-card" id="loginForm">
+
+            <div class="field">
+                <label for="loginEmail">Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="loginEmail" placeholder="example@gmail.com"
+                           onkeydown="if(event.key==='Enter') login()">
+                </div>
+                <div class="field-hint" id="loginEmailHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="loginPassword">Пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="loginPassword" placeholder="Ваш пароль"
+                           onkeydown="if(event.key==='Enter') login()">
+                    <button class="toggle-pass" onclick="togglePass('loginPassword', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="field-hint" id="loginPassHint"></div>
+            </div>
+
+            <button class="btn-register" id="loginBtn" onclick="login()">
+                <span id="loginBtnText">Увійти →</span>
+                <span class="btn-spinner hidden" id="loginSpinner"></span>
+            </button>
+
+            <p class="auth-switch">Немає акаунту? <a onclick="switchTab('register')">Зареєструватися</a></p>
+        </div>
+
+        <!-- ══ REGISTER FORM ══ -->
+        <div class="glass auth-card hidden" id="regForm">
 
             <div class="field">
                 <div class="field-top">
-                    <label for="username">Ваше ім'я</label>
+                    <label for="username">Ім'я</label>
                     <span class="char-counter" id="nameCounter">0 / 24</span>
                 </div>
-                <input type="text" id="username" placeholder="Мінімум 3 символи, лише літери…"
-                       onkeydown="if(event.key==='Enter') register()">
-                <div class="field-requirements">
-
-                    <span class="req"> Від 3 до 24 символів</span>
-                    <p><span class="req"> Без цифр та спецсимволів</span></p>
-
-                    <!-- EMAIL -->
-                    <div class="field">
-                        <div class="field-top">
-                            <label for="email">Email</label>
-                        </div>
-                        <input type="email" id="email" placeholder="example@gmail.com">
-                        <div class="field-hint" id="emailHint"></div>
-                    </div>
-
-                    <!-- PASSWORD -->
-                    <div class="field">
-                        <div class="field-top">
-                            <label for="password">Пароль</label>
-                        </div>
-                        <input type="password" id="password" placeholder="Мінімум 6 символів">
-                        <div class="field-hint" id="passHint"></div>
-                    </div>
+                <div class="input-wrap">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="username" placeholder="Мінімум 3 символи, лише літери…"
+                           onkeydown="if(event.key==='Enter') register()">
+                </div>
+                <div class="field-reqs">
+                    <span class="req-tag">Від 3 до 24 символів</span>
+                    <span class="req-tag">Без цифр та спецсимволів</span>
                 </div>
                 <div class="field-hint" id="nameHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regEmail">Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="regEmail" placeholder="example@gmail.com"
+                           onkeydown="if(event.key==='Enter') register()">
+                </div>
+                <div class="field-hint" id="emailHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regPassword">Пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPassword" placeholder="Мінімум 6 символів"
+                           onkeydown="if(event.key==='Enter') register()">
+                    <button class="toggle-pass" onclick="togglePass('regPassword', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="pass-strength-wrap">
+                    <div class="pass-bar" id="passBar"></div>
+                </div>
+                <div class="pass-strength-label" id="passStrengthLabel"></div>
+                <div class="field-hint" id="passHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regPassword2">Підтвердити пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPassword2" placeholder="Повторіть пароль"
+                           onkeydown="if(event.key==='Enter') register()">
+                    <button class="toggle-pass" onclick="togglePass('regPassword2', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="field-hint" id="pass2Hint"></div>
             </div>
 
             <p class="sec-label">Оберіть роль</p>
@@ -75,38 +138,47 @@
             </div>
             <div class="field-hint" id="roleHint"></div>
 
-            <button class="btn-register" onclick="register()">Зареєструватися →</button>
+            <button class="btn-register" id="regBtn" onclick="register()">
+                <span id="regBtnText">Створити акаунт →</span>
+                <span class="btn-spinner hidden" id="regSpinner"></span>
+            </button>
+
+            <p class="auth-switch">Вже є акаунт? <a onclick="switchTab('login')">Увійти</a></p>
         </div>
 
         <!-- ══ ПРОФІЛЬ ══ -->
         <div class="glass hidden" id="profileCard">
             <div class="profile-header">
                 <div class="avatar" id="avatarLetter">?</div>
-                <div>
+                <div class="profile-info">
                     <div class="profile-name" id="profileName"></div>
+                    <div class="profile-email" id="profileEmail"></div>
                     <span class="badge" id="profileBadge"></span>
                 </div>
             </div>
+
             <div class="code-block">
                 <div>
-                    <div class="code-label">Ваш особистий код</div>
+                    <div class="code-label">Особистий код</div>
                     <div class="code-value" id="profileCode">—</div>
                 </div>
                 <button class="btn-copy" onclick="copyCode('profileCode')">📋 Скопіювати</button>
             </div>
+
             <p class="perms-title">Ваші можливості</p>
             <div id="permsList"></div>
-            <button class="btn-logout" onclick="logout()">🚪 Вийти</button>
+
+            <button class="btn-logout" onclick="logout()">🚪 Вийти з акаунту</button>
         </div>
 
         <!-- ══ АДМІН ПАНЕЛЬ ══ -->
         <div class="glass hidden admin-panel" id="adminPanel">
             <div class="admin-title">⚙️ Адмін-панель — усі користувачі</div>
-            <p id="noUsers">Користувачів ще немає</p>
+            <p id="noUsers" class="no-users-hint">Користувачів ще немає</p>
             <table class="users-table">
                 <thead>
                     <tr>
-                        <th>Ім'я</th><th>Роль</th><th>Код</th><th>Змінити роль</th><th></th>
+                        <th>Ім'я</th><th>Email</th><th>Роль</th><th>Код</th><th>Змінити роль</th><th></th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody"></tbody>

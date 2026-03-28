@@ -9,6 +9,6 @@ public class TeamController {
 
     @GetMapping("/teams")
     public String team(Model model){
-        return "Team";
+        return "team";
     }
 }

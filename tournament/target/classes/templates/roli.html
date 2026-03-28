@@ -1,165 +1,193 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${title}"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-</head>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: white;
-            min-height: 100vh;
-            padding: 40px;
-        }
-
-        h1, h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        label {
-            display: block;
-            margin: 15px 0 5px;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 15px;
-        }
-
-        button {
-            background: #00e5ff;
-            color: black;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-        }
-
-        .info {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .info p {
-            margin: 8px 0;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
+    <title>Акаунт — ArenaFlow</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/roli.css}" href="roli.css">
 </head>
 <body>
+<div class="blob-1"></div>
+<div class="blob-2"></div>
 
-<h1>Реєстрація користувача</h1>
-<div class="container">
-    <label for="username">Ім'я користувача:</label>
-    <input type="text" id="username" placeholder="Введіть ім'я">
+    <header th:insert="Blocks/header :: header"></header>
 
-    <label for="role">Виберіть роль:</label>
-    <select id="role">
-        <option value="Адміністратор">Адміністратор</option>
-        <option value="Учасник">Учасник</option>
-        <option value="Журі">Журі</option>
-        <option value="Організатор">Організатор</option>
-    </select>
+    <div class="wrap">
 
-    <button onclick="registerUser()">Зареєструватися</button>
-</div>
+        <div class="page-tag">Акаунт</div>
+        <h1 class="page-title">ArenaFlow</h1>
+        <p class="page-sub">Увійдіть або створіть акаунт щоб почати</p>
 
-<div id="userInfo" class="container hidden">
-    <h2>Ваш профіль</h2>
-    <p><strong>Ім'я:</strong> <span id="displayName"></span></p>
-    <p><strong>Роль:</strong> <span id="displayRole"></span></p>
 
-    <div id="permissions" class="info">
-        <h3>Доступні дії:</h3>
-        <ul id="actionsList"></ul>
+        <!-- ══ TABS ══ -->
+        <div class="auth-tabs" id="authTabs">
+            <button class="auth-tab active" id="tabLogin"    onclick="switchTab('login')">Вхід</button>
+            <button class="auth-tab"        id="tabRegister" onclick="switchTab('register')">Реєстрація</button>
+        </div>
+
+        <!-- ══ LOGIN FORM ══ -->
+        <div class="glass auth-card" id="loginForm">
+
+            <div class="field">
+                <label for="loginEmail">Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="loginEmail" placeholder="example@gmail.com"
+                           onkeydown="if(event.key==='Enter') login()">
+                </div>
+                <div class="field-hint" id="loginEmailHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="loginPassword">Пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="loginPassword" placeholder="Ваш пароль"
+                           onkeydown="if(event.key==='Enter') login()">
+                    <button class="toggle-pass" onclick="togglePass('loginPassword', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="field-hint" id="loginPassHint"></div>
+            </div>
+
+            <button class="btn-register" id="loginBtn" onclick="login()">
+                <span id="loginBtnText">Увійти →</span>
+                <span class="btn-spinner hidden" id="loginSpinner"></span>
+            </button>
+
+            <p class="auth-switch">Немає акаунту? <a onclick="switchTab('register')">Зареєструватися</a></p>
+        </div>
+
+        <!-- ══ REGISTER FORM ══ -->
+        <div class="glass auth-card hidden" id="regForm">
+
+            <div class="field">
+                <div class="field-top">
+                    <label for="username">Ім'я</label>
+                    <span class="char-counter" id="nameCounter">0 / 24</span>
+                </div>
+                <div class="input-wrap">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="username" placeholder="Мінімум 3 символи, лише літери…"
+                           onkeydown="if(event.key==='Enter') register()">
+                </div>
+                <div class="field-reqs">
+                    <span class="req-tag">Від 3 до 24 символів</span>
+                    <span class="req-tag">Без цифр та спецсимволів</span>
+                </div>
+                <div class="field-hint" id="nameHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regEmail">Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="regEmail" placeholder="example@gmail.com"
+                           onkeydown="if(event.key==='Enter') register()">
+                </div>
+                <div class="field-hint" id="emailHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regPassword">Пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPassword" placeholder="Мінімум 6 символів"
+                           onkeydown="if(event.key==='Enter') register()">
+                    <button class="toggle-pass" onclick="togglePass('regPassword', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="pass-strength-wrap">
+                    <div class="pass-bar" id="passBar"></div>
+                </div>
+                <div class="pass-strength-label" id="passStrengthLabel"></div>
+                <div class="field-hint" id="passHint"></div>
+            </div>
+
+            <div class="field">
+                <label for="regPassword2">Підтвердити пароль</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPassword2" placeholder="Повторіть пароль"
+                           onkeydown="if(event.key==='Enter') register()">
+                    <button class="toggle-pass" onclick="togglePass('regPassword2', this)" tabindex="-1">👁</button>
+                </div>
+                <div class="field-hint" id="pass2Hint"></div>
+            </div>
+
+            <p class="sec-label">Оберіть роль</p>
+            <div class="roles-grid">
+                <div class="role-option" data-role="Учасник">
+                    <div class="r-icon">🎮</div>
+                    <div class="r-name">Учасник</div>
+                    <div class="r-desc">Змагаюся в турнірах</div>
+                </div>
+                <div class="role-option" data-role="Журі">
+                    <div class="r-icon">⚖️</div>
+                    <div class="r-name">Журі</div>
+                    <div class="r-desc">Оцінюю проєкти</div>
+                </div>
+                <div class="role-option" data-role="Організатор">
+                    <div class="r-icon">📋</div>
+                    <div class="r-name">Організатор</div>
+                    <div class="r-desc">Керую турнірами</div>
+                </div>
+                <div class="role-option" data-role="Адміністратор">
+                    <div class="r-icon">🛡️</div>
+                    <div class="r-name">Адміністратор</div>
+                    <div class="r-desc">Повний доступ</div>
+                </div>
+            </div>
+            <div class="field-hint" id="roleHint"></div>
+
+            <button class="btn-register" id="regBtn" onclick="register()">
+                <span id="regBtnText">Створити акаунт →</span>
+                <span class="btn-spinner hidden" id="regSpinner"></span>
+            </button>
+
+            <p class="auth-switch">Вже є акаунт? <a onclick="switchTab('login')">Увійти</a></p>
+        </div>
+
+        <!-- ══ ПРОФІЛЬ ══ -->
+        <div class="glass hidden" id="profileCard">
+            <div class="profile-header">
+                <div class="avatar" id="avatarLetter">?</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-email" id="profileEmail"></div>
+                    <span class="badge" id="profileBadge"></span>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div>
+                    <div class="code-label">Особистий код</div>
+                    <div class="code-value" id="profileCode">—</div>
+                </div>
+                <button class="btn-copy" onclick="copyCode('profileCode')">📋 Скопіювати</button>
+            </div>
+
+            <p class="perms-title">Ваші можливості</p>
+            <div id="permsList"></div>
+
+            <button class="btn-logout" onclick="logout()">🚪 Вийти з акаунту</button>
+        </div>
+
+        <!-- ══ АДМІН ПАНЕЛЬ ══ -->
+        <div class="glass hidden admin-panel" id="adminPanel">
+            <div class="admin-title">⚙️ Адмін-панель — усі користувачі</div>
+            <p id="noUsers" class="no-users-hint">Користувачів ще немає</p>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Ім'я</th><th>Email</th><th>Роль</th><th>Код</th><th>Змінити роль</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+
     </div>
-</div>
 
-<script>
-    function registerUser() {
-        const name = document.getElementById('username').value.trim();
-        const role = document.getElementById('role').value;
-
-        if (!name) {
-            alert('Будь ласка, введіть ім\'я.');
-            return;
-        }
-
-        document.getElementById('displayName').innerText = name;
-        document.getElementById('displayRole').innerText = role;
-        document.getElementById('userInfo').classList.remove('hidden');
-
-        // Очистимо попередні дії
-        const actionsList = document.getElementById('actionsList');
-        actionsList.innerHTML = '';
-
-        // Визначимо права на основі ролі
-        let actions = [];
-        switch(role) {
-            case 'Адміністратор':
-                actions = [
-                    'Створювати та видаляти команди',
-                    'Роздавати ролі користувачам',
-                    'Редагувати права учасників'
-                ];
-                break;
-            case 'Учасник':
-                actions = [
-                    'Створити команду',
-                    'Брати участь у проектах'
-                ];
-                break;
-            case 'Журі':
-                actions = [
-                    'Оцінювати роботи команд',
-                    'Доступ до результатів'
-                ];
-                break;
-            case 'Організатор':
-                actions = [
-                    'Перегляд усіх команд та учасників',
-                    'Моніторинг подій'
-                ];
-                break;
-        }
-
-        actions.forEach(action => {
-            const li = document.createElement('li');
-            li.innerText = action;
-            actionsList.appendChild(li);
-        });
-    }
-</script>
-
+    <div id="toast"></div>
+    <script th:src="@{/js/roli.js}" src="roli.js"></script>
 </body>
 </html>

@@ -1,15 +1,19 @@
 <div th:fragment="header">
 <nav>
-
-    <h1>ArenaFlow<</h1>
-
+    <h1>ArenaFlow</h1>
     <ul>
         <li><a href="/">Головна</a></li>
-        <li><a href="/team">Команда</a></li>
-        <li><a href="/roli">Ролі</a></li>
-        <li><a href="/download">Завантаження</a></li>
+        <li><a href="/teams">Команди</a></li>
+        <li><a href="/roli">Акаунт</a></li>
+        <li><a href="/tournaments">Турніри</a></li>
         <li><a href="/rating">Рейтинг</a></li>
+        <li><a href="/download">Завантаження</a></li>
     </ul>
-
 </nav>
+<script>
+    document.querySelectorAll('nav a').forEach(a => {
+        if (a.getAttribute('href') === window.location.pathname)
+            a.classList.add('active');
+    });
+</script>
 </div>
