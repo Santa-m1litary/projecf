@@ -10,26 +10,34 @@ import java.util.*;
 @Service
 public class DataService {
 
-    // ---- Хранилища ----
     private final Map<String, User>       users       = new LinkedHashMap<>();
     private final Map<String, Team>       teams       = new LinkedHashMap<>();
     private final Map<String, Tournament> tournaments = new LinkedHashMap<>();
 
     // ======= USERS =======
 
-    public User registerUser(String name, String role) {
-        // Если уже есть — обновить роль
+    public User registerUser(String name, String role, String email, String password) {
+        // Check email already exists
         for (User u : users.values()) {
-            if (u.getName().equalsIgnoreCase(name)) {
-                u.setRole(role);
-                return u;
+            if (u.getEmail() != null && u.getEmail().equalsIgnoreCase(email)) {
+                return null; // already exists
             }
         }
         String id   = UUID.randomUUID().toString().substring(0, 8);
         String code = generateUserCode(name);
-        User user   = new User(id, name, role, code);
+        User user   = new User(id, name, role, code, email, password);
         users.put(id, user);
         return user;
+    }
+
+    public User loginUser(String email, String password) {
+        for (User u : users.values()) {
+            if (u.getEmail() != null && u.getEmail().equalsIgnoreCase(email)
+                    && u.getPassword() != null && u.getPassword().equals(password)) {
+                return u;
+            }
+        }
+        return null;
     }
 
     public List<User> getAllUsers() {
@@ -108,8 +116,8 @@ public class DataService {
     // ======= TOURNAMENTS =======
 
     public Tournament createTournament(String name, String createdBy) {
-        String id          = UUID.randomUUID().toString().substring(0, 8);
-        Tournament t       = new Tournament(id, name, createdBy);
+        String id    = UUID.randomUUID().toString().substring(0, 8);
+        Tournament t = new Tournament(id, name, createdBy);
         tournaments.put(id, t);
         return t;
     }
@@ -149,14 +157,18 @@ public class DataService {
 
     private String generateUserCode(String name) {
         String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "")
-                         .toUpperCase().substring(0, Math.min(3, name.length()));
+                .toUpperCase();
+        base = base.substring(0, Math.min(3, base.length()));
+        if (base.isEmpty()) base = "USR";
         int num = 1000 + new Random().nextInt(9000);
         return base + "-" + num;
     }
 
     private String generateTeamCode(String name) {
         String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "")
-                         .toUpperCase().substring(0, Math.min(4, name.length()));
+                .toUpperCase();
+        base = base.substring(0, Math.min(4, base.length()));
+        if (base.isEmpty()) base = "TEAM";
         int num = 100 + new Random().nextInt(900);
         return "TEAM-" + base + "-" + num;
     }

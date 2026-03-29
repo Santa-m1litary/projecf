@@ -1,9 +1,10 @@
 package com.joust.tournament.controllers;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.joust.tournament.controllers.Post;
-import com.joust.tournament.controllers.PostRepository;
 
+import com.joust.tournament.models.Post;
+import com.joust.tournament.repository.PostRepository;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
