@@ -1,5 +1,6 @@
 package com.joust.tournament.services;
 
+
 import com.joust.tournament.models.Team;
 import com.joust.tournament.models.Tournament;
 import com.joust.tournament.models.User;
@@ -25,7 +26,7 @@ public class DataService {
         }
         String id   = UUID.randomUUID().toString().substring(0, 8);
         String code = generateUserCode(name);
-        User user   = new User(id, name, role, code, email, password);
+        User user   = new User();
         users.put(id, user);
         return user;
     }
@@ -50,12 +51,7 @@ public class DataService {
                 .findFirst().orElse(null);
     }
 
-    public boolean updateUserRole(String id, String newRole) {
-        User u = users.get(id);
-        if (u == null) return false;
-        u.setRole(newRole);
-        return true;
-    }
+
 
     public boolean deleteUser(String id) {
         return users.remove(id) != null;

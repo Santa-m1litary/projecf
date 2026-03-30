@@ -1,5 +1,4 @@
 package com.joust.tournament.controllers;
-
 import com.joust.tournament.models.Team;
 import com.joust.tournament.models.Tournament;
 import com.joust.tournament.models.User;
@@ -23,15 +22,16 @@ public class ApiController {
     // POST /api/user/register  { name, role, email, password }
     @PostMapping("/user/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String name     = body.get("name");
-        String role     = body.get("role");
-        String email    = body.get("email");
+        String name = body.get("name");
+        String role = body.get("role");
+        String email = body.get("email");
         String password = body.get("password");
 
-        if (name == null || name.isBlank())     return ResponseEntity.badRequest().body("Введіть імʼя");
-        if (role == null || role.isBlank())     return ResponseEntity.badRequest().body("Оберіть роль");
-        if (email == null || email.isBlank())   return ResponseEntity.badRequest().body("Введіть email");
-        if (password == null || password.length() < 6) return ResponseEntity.badRequest().body("Пароль мінімум 6 символів");
+        if (name == null || name.isBlank()) return ResponseEntity.badRequest().body("Введіть імʼя");
+        if (role == null || role.isBlank()) return ResponseEntity.badRequest().body("Оберіть роль");
+        if (email == null || email.isBlank()) return ResponseEntity.badRequest().body("Введіть email");
+        if (password == null || password.length() < 6)
+            return ResponseEntity.badRequest().body("Пароль мінімум 6 символів");
 
         User user = dataService.registerUser(name, role, email, password);
         if (user == null) return ResponseEntity.badRequest().body("Email вже зареєстровано");
@@ -41,10 +41,10 @@ public class ApiController {
     // POST /api/user/login  { email, password }
     @PostMapping("/user/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
+        String email = body.get("email");
         String password = body.get("password");
 
-        if (email == null || email.isBlank())    return ResponseEntity.badRequest().body("Введіть email");
+        if (email == null || email.isBlank()) return ResponseEntity.badRequest().body("Введіть email");
         if (password == null || password.isBlank()) return ResponseEntity.badRequest().body("Введіть пароль");
 
         User user = dataService.loginUser(email.trim().toLowerCase(), password);
@@ -56,17 +56,11 @@ public class ApiController {
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
         return ResponseEntity.ok(
-            dataService.getAllUsers().stream().map(this::safeUser).toList()
+                dataService.getAllUsers().stream().map(this::safeUser).toList()
         );
     }
 
     // PUT /api/users/{id}/role  { role }
-    @PutMapping("/users/{id}/role")
-    public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody Map<String, String> body) {
-        if (!dataService.updateUserRole(id, body.get("role")))
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok().build();
-    }
 
     // DELETE /api/users/{id}
     @DeleteMapping("/users/{id}")
@@ -78,11 +72,11 @@ public class ApiController {
     // Safe user (without password)
     private Map<String, String> safeUser(User u) {
         return Map.of(
-            "id",    u.getId(),
-            "name",  u.getName(),
-            "role",  u.getRole(),
-            "code",  u.getCode(),
-            "email", u.getEmail() != null ? u.getEmail() : ""
+                "id", String.valueOf(u.getId()), // Превращаем в String
+                "name", u.getName(),
+                "role", u.getRole().toString(),    // Превращаем Enum в String
+                "code", u.getCode() != null ? u.getCode() : "",
+                "email", u.getEmail() != null ? u.getEmail() : ""
         );
     }
 
@@ -165,3 +159,4 @@ public class ApiController {
         return ResponseEntity.ok().build();
     }
 }
+
