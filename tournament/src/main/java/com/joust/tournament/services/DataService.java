@@ -1,9 +1,10 @@
 package com.joust.tournament.services;
 
-
 import com.joust.tournament.models.Team;
 import com.joust.tournament.models.Tournament;
 import com.joust.tournament.models.User;
+import com.joust.tournament.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -11,53 +12,64 @@ import java.util.*;
 @Service
 public class DataService {
 
-    private final Map<String, User>       users       = new LinkedHashMap<>();
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // Teams и tournaments пока в памяти (можно потом тоже в БД)
     private final Map<String, Team>       teams       = new LinkedHashMap<>();
     private final Map<String, Tournament> tournaments = new LinkedHashMap<>();
+
+    public DataService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // ======= USERS =======
 
     public User registerUser(String name, String role, String email, String password) {
-        // Check email already exists
-        for (User u : users.values()) {
-            if (u.getEmail() != null && u.getEmail().equalsIgnoreCase(email)) {
-                return null; // already exists
-            }
+        // Проверка дубликата email — теперь через БД
+        if (userRepository.existsByEmail(email.toLowerCase())) {
+            return null; // уже существует
         }
+
         String id   = UUID.randomUUID().toString().substring(0, 8);
         String code = generateUserCode(name);
-        User user   = new User();
-        users.put(id, user);
-        return user;
+
+        User user = new User(
+                id,
+                name,
+                role,
+                code,
+                email.toLowerCase(),
+                passwordEncoder.encode(password) // ← хешируем пароль
+        );
+
+        return userRepository.save(user); // ← сохраняем в БД
     }
 
     public User loginUser(String email, String password) {
-        for (User u : users.values()) {
-            if (u.getEmail() != null && u.getEmail().equalsIgnoreCase(email)
-                    && u.getPassword() != null && u.getPassword().equals(password)) {
-                return u;
-            }
-        }
-        return null;
+        // Ищем по email в БД
+        return userRepository.findByEmail(email.toLowerCase())
+                .filter(u -> passwordEncoder.matches(password, u.getPassword()))
+                .orElse(null);
     }
 
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return userRepository.findAll(); // ← берём из БД
     }
 
     public User getUserByCode(String code) {
-        return users.values().stream()
-                .filter(u -> u.getCode().equalsIgnoreCase(code))
+        return userRepository.findAll().stream()
+                .filter(u -> u.getCode() != null && u.getCode().equalsIgnoreCase(code))
                 .findFirst().orElse(null);
     }
 
-
-
     public boolean deleteUser(String id) {
-        return users.remove(id) != null;
+        if (!userRepository.existsById(id)) return false;
+        userRepository.deleteById(id); // ← удаляем из БД
+        return true;
     }
 
-    // ======= TEAMS =======
+    // ======= TEAMS (пока в памяти) =======
 
     public Team createTeam(String name) {
         String id   = UUID.randomUUID().toString().substring(0, 8);
@@ -109,7 +121,7 @@ public class DataService {
         return teams.remove(id) != null;
     }
 
-    // ======= TOURNAMENTS =======
+    // ======= TOURNAMENTS (пока в памяти) =======
 
     public Tournament createTournament(String name, String createdBy) {
         String id    = UUID.randomUUID().toString().substring(0, 8);
@@ -152,8 +164,7 @@ public class DataService {
     // ======= HELPERS =======
 
     private String generateUserCode(String name) {
-        String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "")
-                .toUpperCase();
+        String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "").toUpperCase();
         base = base.substring(0, Math.min(3, base.length()));
         if (base.isEmpty()) base = "USR";
         int num = 1000 + new Random().nextInt(9000);
@@ -161,8 +172,7 @@ public class DataService {
     }
 
     private String generateTeamCode(String name) {
-        String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "")
-                .toUpperCase();
+        String base = name.replaceAll("[^a-zA-Zа-яА-ЯіІїЇєЄ]", "").toUpperCase();
         base = base.substring(0, Math.min(4, base.length()));
         if (base.isEmpty()) base = "TEAM";
         int num = 100 + new Random().nextInt(900);
