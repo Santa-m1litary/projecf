@@ -178,4 +178,7 @@ public class DataService {
         int num = 100 + new Random().nextInt(900);
         return "TEAM-" + base + "-" + num;
     }
+    public Tournament getTournamentById(String id) {
+        return tournaments.get(id);
+    }
 }

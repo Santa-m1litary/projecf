@@ -17,6 +17,9 @@ public class ApiController {
     @Autowired
     private DataService dataService;
 
+    @Autowired
+    private com.joust.tournament.services.FileService fileService;
+
     // ======= USERS =======
 
     // POST /api/user/register  { name, role, email, password }
@@ -158,5 +161,63 @@ public class ApiController {
         if (!dataService.deleteTournament(id)) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
+
+    // GET /api/rating?tournamentId=xxx
+    @GetMapping("/rating")
+    public ResponseEntity<?> getRating(
+            @RequestParam(value = "tournamentId", required = false) String tournamentId) {
+
+        List<Team> teams = dataService.getAllTeams();
+
+        // Фильтруем по турниру если указан
+        if (tournamentId != null && !tournamentId.isBlank()) {
+            Tournament tournament = dataService.getTournamentById(tournamentId);
+            if (tournament != null) {
+                List<String> teamIds = tournament.getTeams().stream()
+                        .map(Team::getId)
+                        .toList();
+                teams = teams.stream()
+                        .filter(t -> teamIds.contains(t.getId()))
+                        .toList();
+            }
+        }
+
+        // Получаем оценки из БД и считаем рейтинг
+        List<Map<String, Object>> result = teams.stream().map(team -> {
+            List<com.joust.tournament.models.FileEntity> files =
+                    fileService.getByTeam(team.getId());
+
+            double avgScore = files.stream()
+                    .filter(f -> f.getTotalScore() != null)
+                    .mapToInt(com.joust.tournament.models.FileEntity::getTotalScore)
+                    .average()
+                    .orElse(0.0);
+
+            // Название турнира если фильтр указан
+            String tournamentName = null;
+            if (tournamentId != null && !tournamentId.isBlank()) {
+                Tournament t = dataService.getTournamentById(tournamentId);
+                if (t != null) tournamentName = t.getName();
+            }
+
+            Map<String, Object> row = new java.util.HashMap<>();
+            row.put("id",             team.getId());
+            row.put("name",           team.getName());
+            row.put("score",          (int) Math.round(avgScore));
+            row.put("memberCount",    team.getMembers().size());
+            row.put("filesCount",     files.size());
+            row.put("tournamentName", tournamentName);
+            return row;
+        }).toList();
+
+        // Сортируем по баллу — от высшего к низшему
+        result = result.stream()
+                .sorted((a, b) -> Integer.compare(
+                        (int) b.get("score"), (int) a.get("score")))
+                .toList();
+
+        return ResponseEntity.ok(result);
+    }
+
 }
 

@@ -130,3 +130,4 @@ function toggleSort() {
 // Ініціалізація
 loadTournamentFilter();
 loadRating();
+
